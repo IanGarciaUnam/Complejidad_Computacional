@@ -101,7 +101,7 @@ class Variable:
         out_str=""
         if self.boolean_flag=="-":
             out_str+=self.boolean_flag
-        return f'{out_str}{self.variable}({self.valor})'
+        return f'{out_str}{self.variable}({self.get_valor_booleano()})'
 
 class Creator:
     """
@@ -116,7 +116,6 @@ class Creator:
         self.clausulas=[]
         self.letters = string.ascii_lowercase
         self.rand_letters = random.choices(self.letters,k=self.no_variables)
-        print(self.rand_letters)
         self.variables_global=[]
         self.create()
         self.complete_to_3()
@@ -128,7 +127,7 @@ class Creator:
         no_variables_per_clausula=int(self.no_variables/self.no_clausulas)
         while conteo_clausulas>0:
             conteo_clausulas-=1
-            self.clausulas.append(Clausula(self.variables_generator(no_variables_per_clausula), random.choices(["+","-"])))
+            self.clausulas.append(Clausula(self.variables_generator(no_variables_per_clausula), "+"))
         return self.clausulas
 
     def variables_generator(self, no_variables_per_clausula):
@@ -144,7 +143,7 @@ class Creator:
                 caracter=random.choices(self.rand_letters)[0]
             caracteres_tomados.append(caracter[0])
             #print("Caracteres_tomados", caracter, caracteres_tomados)
-            v =Variable(caracter, random.choice([True, False]), random.choice(["+","-"]))
+            v =Variable(caracter, random.choice([True, False]), random.choice(["+","-"][0]))
             #print(v, self.variables_global)
             if  v not in self.variables_global and v not in variables_list:
                 variables_list.append(v)
@@ -188,7 +187,7 @@ class Creator:
         Realiza la evaluación por cada clausula para obtener el valor de verdad de
         la proposición
         """
-        print(str(self.clausulas))
+        print("Ejemplar", str(self.clausulas))
         result=True
         fst_time=False
         for clausula in self.clausulas:
@@ -197,8 +196,8 @@ class Creator:
                 result=clausula.get_valor_booleano()
             else:
                 result&=clausula.get_valor_booleano()
-        print(result)
+        print("Respuesta: ",result)
         return result
 
-c = Creator(12,4)
+c = Creator(10, 5)
 c.evaluates()
