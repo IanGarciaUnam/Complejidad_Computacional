@@ -184,7 +184,7 @@ class Router:
                 #print(self.t==V, self.t,V,"I TESTED:",i_tested,len(self.grafica.get_graph()))
                 i_tested+=1
                 V=random.choice(self.grafica.get_graph()[V]).get_value()
-                if i_tested >= len(self.grafica.get_graph()[V]):
+                if i_tested >= len(self.grafica.get_graph()[V]) :
                     break
                 #print(self.ruta, V)
             if V not in self.ruta:
