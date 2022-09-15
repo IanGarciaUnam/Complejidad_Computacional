@@ -178,7 +178,7 @@ class Router:
         i_tested=0
         self.ruta.append(self.s)
         V=self.s
-        print(self.grafica)
+        print("Ejemplar:",self.grafica)
         while self.vertice_tiene_vecino(V):
             while V in self.ruta:
                 #print(self.t==V, self.t,V,"I TESTED:",i_tested,len(self.grafica.get_graph()))
@@ -192,7 +192,7 @@ class Router:
                 i_tested=0
             if self.t==V or i_tested>=len(self.grafica.get_graph()[V]):
                 break
-        print("Camino:",self.ruta)
+        print("Propuesta:",self.ruta)
         v_pop=self.ruta.pop()
         self.ruta.append(v_pop)
         return self.t==v_pop
