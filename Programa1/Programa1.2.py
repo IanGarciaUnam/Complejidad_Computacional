@@ -6,9 +6,15 @@ class Clausula:
     Esta clase nos permite modelar las Clausulas correspondientes, así
     como obtener su valor de verdad
     """
-    def __init__(self, variables:list, flag_bool="+"):
+    def __init__(self, variables, flag_bool="+"):
         self.variables=variables
         self.flag_bool:str=flag_bool
+
+    def get_variables(self):
+        """
+        Devuelve la lista de variables
+        """
+        return self.variables
 
     def __eq__(self, other):
         if not isinstance(other, Clausula):
@@ -17,7 +23,7 @@ class Clausula:
         other.variables.sort()
         return self.variables == other.variables and self.flag_bool==other.flag_bool
 
-    def agrega_variable(variable):
+    def agrega_variable(self, variable):
         """
         Permite agregar una variable a la lista de variables de la Clausula
         aunque la lista luce de esta forma [x,y,z], el concepto que tratamos
@@ -44,10 +50,14 @@ class Clausula:
 
     def __str__(self):
         out_str="("
-        for var in self.variable:
-            out_str+=str(var)+ "V"
+        for var in self.variables:
+            out_str+=" "+str(var)+ "V"
         out_str=")"
-        return out_str
+        return f'{out_str}'
+
+    def __repr__(self):
+        return f'{self.flag_bool}{self.variables}'
+
 
 
 class Variable:
@@ -66,6 +76,9 @@ class Variable:
         self.valor=valor
         self.boolean_flag=boolean_flag
 
+    def get_variable(self)->str:
+        return self.variable
+
     def get_valor_booleano(self):
         """
         Devuelve el valor booleano de la variable
@@ -75,7 +88,7 @@ class Variable:
         return self.valor
 
     def __eq__(self,other):
-        if not isinstance(Variable, other):
+        if not isinstance(other,Variable):
             return False
         return self.variable==other.variable
 
@@ -83,7 +96,12 @@ class Variable:
         out_str=""
         if self.boolean_flag=="-":
             out_str+=self.boolean_flag
-        return out_str+" "+self.variable+"{"+str(self.valor)+"}"
+        return f'{out_str}{self.variable}({self.valor})'
+    def __repr__(self):
+        out_str=""
+        if self.boolean_flag=="-":
+            out_str+=self.boolean_flag
+        return f'{out_str}{self.variable}({self.valor})'
 
 class Creator:
     """
@@ -91,14 +109,96 @@ class Creator:
     """
     def __init__(self, no_variables=10, no_clausulas=5):
         if no_variables%no_clausulas!=0:
-            print("El número de variables debe ser divisible entre el número de
-            claúsulas")
-            self.no_variables=no_variables
-            self.no_clausulas=no_clausulas
-            self.clausulas=[]
-
+            print("El número de variables debe ser divisible entre el número de claúsulas")
+            return
+        self.no_variables=no_variables
+        self.no_clausulas=no_clausulas
+        self.clausulas=[]
+        self.letters = string.ascii_lowercase
+        self.rand_letters = random.choices(self.letters,k=self.no_variables)
+        print(self.rand_letters)
+        self.variables_global=[]
+        self.create()
+        self.complete_to_3()
     def create(self):
+        """
+        Crea la serie de claúsulas bajo los parámetro y no. de variables
+        """
         conteo_clausulas=self.no_clausulas
         no_variables_per_clausula=int(self.no_variables/self.no_clausulas)
         while conteo_clausulas>0:
-            
+            conteo_clausulas-=1
+            self.clausulas.append(Clausula(self.variables_generator(no_variables_per_clausula), random.choices(["+","-"])))
+        return self.clausulas
+
+    def variables_generator(self, no_variables_per_clausula):
+        """
+        Devuelve una lista con variables, evita tautologías como
+        (p V p), (p V ¬p), etc
+        """
+        caracteres_tomados=[]
+        caracter=random.choices(self.rand_letters)[0]
+        variables_list=[]
+        while no_variables_per_clausula>0:
+            while caracter[0] in caracteres_tomados:
+                caracter=random.choices(self.rand_letters)[0]
+            caracteres_tomados.append(caracter[0])
+            #print("Caracteres_tomados", caracter, caracteres_tomados)
+            v =Variable(caracter, random.choice([True, False]), random.choice(["+","-"]))
+            #print(v, self.variables_global)
+            if  v not in self.variables_global and v not in variables_list:
+                variables_list.append(v)
+                self.variables_global.append(v)
+            else:
+                variables_list.append(Variable(caracter, self.get_variable(v).get_valor_booleano(), random.choice(["+","-"])))
+            no_variables_per_clausula-=1
+        return variables_list
+
+    def get_variable(self, v:Variable):
+        for var in self.variables_global:
+            if var==v:
+                return var
+        return None
+
+
+    def complete_to_3(self):
+        if self.clausulas==[]:
+            print("NOT DEFINED YET")
+            return
+        if len(self.clausulas[0].get_variables())%3==0:
+            return self.clausulas
+        if len(self.clausulas[0].get_variables())<=2:
+            num_boolean_flag=random.choice([0,1])
+            boolean_value=random.choice([False, True])
+            caracter=random.choices(self.letters)[0]
+            while caracter in self.rand_letters:
+                caracter=random.choices(self.letters)[0]
+            for clausula in self.clausulas:
+                if num_boolean_flag==1:
+                    clausula.agrega_variable(Variable(caracter, boolean_value, "-"))
+                else:
+                    clausula.agrega_variable(Variable(caracter, boolean_value, "+"))
+            return self.complete_to_3()
+        else:
+            print("El número de variables por claúsula es mayor o igual a 4")
+            return
+
+    def evaluates(self):
+        """
+        Realiza la evaluación por cada clausula para obtener el valor de verdad de
+        la proposición
+        """
+        print(str(self.clausulas))
+        result=True
+        fst_time=False
+        for clausula in self.clausulas:
+            if fst_time:
+                fst_time!=fst_time
+                result=clausula.get_valor_booleano()
+            else:
+                result&=clausula.get_valor_booleano()
+        print(result)
+        return result
+
+c = Creator(12,4)
+c.evaluates()
