@@ -10,6 +10,7 @@ class Vertice:
     def __init__(self,vertice:int,vecinos:list):
         self.vertice=vertice
         self.vecinos=vecinos
+        self.vecinos_dict={}
 
     def tiene_vecinos(self):
         """
@@ -29,6 +30,13 @@ class Vertice:
         """
         return self.vecinos
 
+    def get_vecinos_dict(self):
+        """
+        Devuele el diccionario referente a los
+        vecinos
+        """
+        return self.vecinos_dict
+
     def get_value(self):
         """
         Devuelve el valor del vértice
@@ -43,6 +51,7 @@ class Vertice:
             pass
         else:
             self.vecinos.append(vecino)
+            self.vecinos_dict[vecino.get_value()]=vecino.get_value()
 
     def __eq__(self, other):
         if isinstance(other, Vertice):
@@ -166,6 +175,7 @@ class Covering_Set_Problem:
         self.grafica=generador_grafica.get_graph()
         self.grafica_list=generador_grafica.get_graph_as_list()
         self.cubierta_generada=[]
+        self.cubierta_generada_dict={}
 
     def signalizer(self,value):
         """
@@ -204,23 +214,20 @@ class Covering_Set_Problem:
             if vertice == None and max_weight==0:
                 vertice=vertice_main
                 max_weight=len(vecs)
-            elif max_weight<len(vecs) and not self.found_in_grafica_list(vertice_main):
+            elif max_weight<len(vecs) and not self.found_in_cubierta(vertice_main):
                 max_weight=len(vecs)
                 vertice=vertice_main
         return vertice
 
-    def found_in_grafica_list(self, vertice):
+    def found_in_cubierta(self, vertice):
+        #Disminuimos un poco la complejidad a O(1) si ya se encuentra en el diccionario
+        if self.cubierta_generada_dict.get(vertice.get_value())!=None:
+            return True
         for vex in self.cubierta_generada:
             if vertice == vex:
                 return True
-            elif vertice in vex.get_vecinos():
+            elif vex.get_vecinos_dict().get(vertice.get_value())!=None:
                 return True
-            #else:
-                #for vec in vex.get_vecinos():
-                    #print(vec==vertice, vec.get_value(),vertice.get_value())
-                    #if vec==vertice:
-                        #return True
-
         return False
 
     def greedy_set_cover(self):
@@ -244,6 +251,7 @@ class Covering_Set_Problem:
             v_max=self.pick_maximal_vertex()
             #vertices_vecinos_usados.append(v_max)
             self.cubierta_generada.append(v_max)
+            self.cubierta_generada_dict[v_max.get_value()]=tuple(v_max.get_vecinos())
             for vec in v_max.get_vecinos():
                 if vec in self.grafica_list:
                     self.grafica_list.remove(vec)
@@ -265,9 +273,9 @@ class Covering_Set_Problem:
 
 
 
-r = Covering_Set_Problem(500,600)
+r = Covering_Set_Problem(5,10)
 start = time.time()
 r.print_cover_set()
 end = time.time()
 print("Time:",end - start)
-print("Complejidad O(n^{2}logn)")
+print("Complejidad O(n^{3})")
