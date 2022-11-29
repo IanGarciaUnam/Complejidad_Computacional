@@ -273,7 +273,7 @@ class Covering_Set_Problem:
 
 
 
-r = Covering_Set_Problem(5,10)
+r = Covering_Set_Problem(5,100)
 start = time.time()
 r.print_cover_set()
 end = time.time()
