@@ -1,6 +1,6 @@
 import random
 from collections import deque
-
+import time
 class Vertice:
     """
     Esta implementación de la clase gráfica nos permitirá modelar
@@ -213,11 +213,13 @@ class Covering_Set_Problem:
         for vex in self.cubierta_generada:
             if vertice == vex:
                 return True
-            else:
-                for vec in vex.get_vecinos():
+            elif vertice in vex.get_vecinos():
+                return True
+            #else:
+                #for vec in vex.get_vecinos():
                     #print(vec==vertice, vec.get_value(),vertice.get_value())
-                    if vec==vertice:
-                        return True
+                    #if vec==vertice:
+                        #return True
 
         return False
 
@@ -230,9 +232,13 @@ class Covering_Set_Problem:
         """
         vertices_origin=list(self.grafica.get_graph().keys())
         vertices_vecinos_usados=[]
+        print("===================EJEMPLAR==========================")
+        print("{")
         for v in self.grafica.get_graph_as_list():
-            print(v)
-        print("=====================================")
+            print(v,",")
+        print("}")
+        print("===============CUBIERTA GENERADA======================")
+
         while len(self.grafica_list)>0:
             #print(self.grafica_list)
             v_max=self.pick_maximal_vertex()
@@ -247,9 +253,10 @@ class Covering_Set_Problem:
 
     def print_cover_set(self):
         self.greedy_set_cover()
+        print("{")
         for v in self.cubierta_generada:
-            #print(isinstance(v, Vertice))
             print(str(v))
+        print("}")
 
 
 
@@ -258,7 +265,9 @@ class Covering_Set_Problem:
 
 
 
-
-r = Covering_Set_Problem(10,20)
-#print(isinstance(r.greedy_set_cover(), Vertice))
+r = Covering_Set_Problem(500,600)
+start = time.time()
 r.print_cover_set()
+end = time.time()
+print("Time:",end - start)
+print("Complejidad O(n^{2}logn)")
