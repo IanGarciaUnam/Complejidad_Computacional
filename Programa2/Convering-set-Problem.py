@@ -51,7 +51,7 @@ class Vertice:
 
     def __str__(self):
         vec_s="["
-        for vec in vecinos:
+        for vec in self.vecinos:
             vec_s+=str(vec.vertice)+","
         vec_s+="]"
         return "{"+str(self.vertice)+","+vec_s+" }"
@@ -63,9 +63,13 @@ class Grafica:
     convierte la lista en un diccionario
     """
     def __init__(self,vertices_l:list):
+        self.vertices_list=vertices_l
         self.vertices={}
         for v in vertices_l:
             self.vertices[v.get_value()]=tuple(v.get_vecinos())
+
+    def get_graph_as_list(self):
+        return self.vertices_list
 
     def get_graph(self):
         """
@@ -113,6 +117,8 @@ class Generador_Grafica:
         self.generate_conexion()
         self.create_graph()
 
+
+
     def generate_conexion(self):
         """
         Genera conexiones aleatorias entre los vértices de una gráfica
@@ -126,6 +132,9 @@ class Generador_Grafica:
                 else:
                     v.add_vecino(nvo_vecino)
                     nvo_vecino.add_vecino(v)
+
+    def get_graph_as_list(self):
+        return self.vertices_list
 
     def create_graph(self):
         """
@@ -155,6 +164,7 @@ class Covering_Set_Problem:
         #self.s=s
         #self.t=t
         self.grafica=generador_grafica.get_graph()
+        self.grafica_list=generador_grafica.get_graph_as_list()
         self.cubierta_generada=[]
 
     def signalizer(self,value):
@@ -180,7 +190,7 @@ class Covering_Set_Problem:
 
 
 
-    def pick_maximal_vertex(self, vertices_utilizados):
+    def pick_maximal_vertex(self):
         """
         Toma el vértice maximal siempre que este no haya sido utilizado
         o sea vecino
@@ -188,15 +198,28 @@ class Covering_Set_Problem:
         flag_flux=True
         vertice=None
         max_weight=0
-        for vertice_main in self.grafica.get_graph():
+        for vertice_main in self.grafica_list:
+            vecs=vertice_main.get_vecinos()
+            #print(vertices_utilizados,vertice_main not in vertices_utilizados)
             if vertice == None and max_weight==0:
                 vertice=vertice_main
-                max_weight=len(self.grafica.get_graph()[vertice_main])
-            elif max_weight<len(self.grafica.get_graph()[vertice_main]) and vertice_main not in vertices_utilizados:
-                max_weight=len(self.grafica.get_graph()[vertice_main])
+                max_weight=len(vecs)
+            elif max_weight<len(vecs) and not self.found_in_grafica_list(vertice_main):
+                max_weight=len(vecs)
                 vertice=vertice_main
         return vertice
 
+    def found_in_grafica_list(self, vertice):
+        for vex in self.cubierta_generada:
+            if vertice == vex:
+                return True
+            else:
+                for vec in vex.get_vecinos():
+                    print(vec==vertice, vec.get_value(),vertice.get_value())
+                    if vec==vertice:
+                        return True
+
+        return False
 
     def greedy_set_cover(self):
         """
@@ -207,15 +230,25 @@ class Covering_Set_Problem:
         """
         vertices_origin=list(self.grafica.get_graph().keys())
         vertices_vecinos_usados=[]
-        while len(vertices_origin)>0:
-            v_max=self.pick_maximal_vertex(vertices_vecinos_usados)
-            vertices_vecinos_usados.append(Vertice(v_max, self.grafica.get_graph()[v_max]))
-            self.cubierta_generada.append(Vertice(v_max, self.grafica.get_graph()[v_max]))
-            print(vertices_origin, v_max)
-            print(v_max in vertices_origin)
-            vertices_origin.remove(v_max)
+        for v in self.grafica.get_graph_as_list():
+            print(v)
+        print("=====================================")
+        while len(self.grafica_list)>0:
+            #print(self.grafica_list)
+            v_max=self.pick_maximal_vertex()
+            #vertices_vecinos_usados.append(v_max)
+            self.cubierta_generada.append(v_max)
+            for vec in v_max.get_vecinos():
+                self.grafica_list.remove(vec)
+            self.grafica_list.remove(v_max)
+
         return self.cubierta_generada
 
+    def print_cover_set(self):
+        self.greedy_set_cover()
+        for v in self.cubierta_generada:
+            #print(isinstance(v, Vertice))
+            print(str(v))
 
 
 
@@ -224,5 +257,7 @@ class Covering_Set_Problem:
 
 
 
-r = Covering_Set_Problem(10,20)
-print(r.greedy_set_cover())
+
+r = Covering_Set_Problem(5,8)
+#print(isinstance(r.greedy_set_cover(), Vertice))
+r.print_cover_set()
