@@ -215,7 +215,7 @@ class Covering_Set_Problem:
                 return True
             else:
                 for vec in vex.get_vecinos():
-                    print(vec==vertice, vec.get_value(),vertice.get_value())
+                    #print(vec==vertice, vec.get_value(),vertice.get_value())
                     if vec==vertice:
                         return True
 
@@ -239,7 +239,8 @@ class Covering_Set_Problem:
             #vertices_vecinos_usados.append(v_max)
             self.cubierta_generada.append(v_max)
             for vec in v_max.get_vecinos():
-                self.grafica_list.remove(vec)
+                if vec in self.grafica_list:
+                    self.grafica_list.remove(vec)
             self.grafica_list.remove(v_max)
 
         return self.cubierta_generada
@@ -258,6 +259,6 @@ class Covering_Set_Problem:
 
 
 
-r = Covering_Set_Problem(5,8)
+r = Covering_Set_Problem(10,20)
 #print(isinstance(r.greedy_set_cover(), Vertice))
 r.print_cover_set()
