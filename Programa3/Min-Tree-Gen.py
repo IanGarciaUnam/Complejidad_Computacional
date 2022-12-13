@@ -168,11 +168,9 @@ class Tree_Min_Span:
     def genera_arbol(self):
         vertice_alfa=random.choice(self.grafica_list)
         self.tree_gen_vertices.append(vertice_alfa)
-        cola=[]
-        cola.append(vertice_alfa)
         #for v in self.grafica_list:
         #    print(str(v))
-        peso_logrado=self.genera_arbol_rec(vertice_alfa, cola)
+        peso_logrado=self.genera_arbol_rec(vertice_alfa, False)
         vertices,vertices_graf="",""
         for v in self.tree_gen_vertices:
             vertices+=str(v)
@@ -182,13 +180,20 @@ class Tree_Min_Span:
         print("Vertices del árbol:\n","[",vertices,"]")
         print("Ejemplar creado:\n", self.tree_gen_aristas)
         print("Peso mínimo esperado: ", self.peso_maximo_esperado,"|","Peso mínimo logrado: ",self.peso_maximo_esperado-self.peso_maximo)
-        return peso_logrado
+        return self.fase_verificadora()
 
-    def genera_arbol_rec(self, vertice, flag_2nd_case):
-        #for v in self.tree_gen_vertices:
-        #    print(str(v))
+    def fase_verificadora(self):
+        for v in self.grafica_list:
+            if self.tree_gen_vertices.count(v)>1 or v not in self.tree_gen_vertices:
+                return False
+        if self.peso_maximo<0:
+            return False
+        return True
+
+
+    def genera_arbol_rec(self, vertice, flag_2nd_case):#Fase adivinadora
         if len(self.tree_gen_vertices)==len(self.grafica_list) or self.peso_maximo<0:
-            return self.peso_maximo>=0
+            return self.tree_gen_vertices
         ver_nuevo,peso=self.choose_min_vert(vertice)
         if not self.esta_en_arbol(ver_nuevo):#El vertice no esta en el arbol generado, evitamos crear ciclos, buscando el de menor peso
             self.peso_maximo-=peso
@@ -201,19 +206,17 @@ class Tree_Min_Span:
                 if ver != vertice:
                     return self.genera_arbol_rec(ver,True)
         else:#Seleccionamos alguno de sus vecinos al azar sin importar su peso
-            while True:
-                vecino=random.choice(vertice.get_vecinos())
-                ver_nuevo,peso=vertice.get_vecinos_dict()[vecino.get_value()]
-                if vecino not in self.tree_gen_vertices:
-                    self.peso_maximo-=peso
-                    self.tree_gen_vertices.append(ver_nuevo)
-                    self.tree_gen_aristas.append((vertice.get_value(),ver_nuevo.get_value(), "p["+str(peso)+"]"))
-                    return self.genera_arbol_rec(ver_nuevo, False)
-                elif len(self.tree_gen_vertices)==1:
-                    self.tree_gen_vertices.clear()
-                    self.tree_gen_aristas.clear()
-                    return self.genera_arbol_rec(vecino,False)
-                break
+            vecino=random.choice(vertice.get_vecinos())
+            ver_nuevo,peso=vertice.get_vecinos_dict()[vecino.get_value()]
+            if vecino not in self.tree_gen_vertices:
+                self.peso_maximo-=peso
+                self.tree_gen_vertices.append(ver_nuevo)
+                self.tree_gen_aristas.append((vertice.get_value(),ver_nuevo.get_value(), "p["+str(peso)+"]"))
+                return self.genera_arbol_rec(ver_nuevo, False)
+            elif len(self.tree_gen_vertices)==1:
+                self.tree_gen_vertices.clear()
+                self.tree_gen_aristas.clear()
+                return self.genera_arbol_rec(vecino,False)
             return self.genera_arbol_rec(vertice, False)
 
 
@@ -230,7 +233,7 @@ class Tree_Min_Span:
         """
         Escoge el vertice cuya arista sea de menor peso
         """
-        k=100000
+        k=1000
         vertice_chosen=None
         for vecino in vertice.get_vecinos_dict():
             vec,peso=vertice.get_vecinos_dict()[vecino]
