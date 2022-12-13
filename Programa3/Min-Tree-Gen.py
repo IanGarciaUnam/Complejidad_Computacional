@@ -168,9 +168,11 @@ class Tree_Min_Span:
     def genera_arbol(self):
         vertice_alfa=random.choice(self.grafica_list)
         self.tree_gen_vertices.append(vertice_alfa)
+        cola=[]
+        cola.append(vertice_alfa)
         #for v in self.grafica_list:
         #    print(str(v))
-        peso_logrado=self.genera_arbol_rec(vertice_alfa, False)
+        peso_logrado=self.genera_arbol_rec(vertice_alfa, cola)
         vertices,vertices_graf="",""
         for v in self.tree_gen_vertices:
             vertices+=str(v)
@@ -248,17 +250,3 @@ else:
     print("NO")
 end = time.time()
 print("Time:",end - start)
-
-
-
-
-
-
-"""
-r =Tree_Min_Span(10,20)
-start = time.time()
-r.print_cover_set()
-end = time.time()
-print("Time:",end - start)
-print("Complejidad O(n^{3})")
-"""
