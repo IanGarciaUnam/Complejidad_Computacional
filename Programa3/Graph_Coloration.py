@@ -243,7 +243,7 @@ class Graph_Coloration:
 
 
 
-g=Graph_Coloration(10,20,2)
+g=Graph_Coloration(10,20,20)
 
 start = time.time()
 g.execute()
